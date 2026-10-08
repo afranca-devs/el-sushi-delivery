@@ -1,0 +1,137 @@
+$gold: #d4af37;
+$bg-dark: #0a0a0a;
+$card-bg: #1a1a1a;
+$border: #2a2a2a;
+$cor-erro: #ff4444;
+
+:host {
+  display: block; height: 100vh; background-color: $bg-dark; overflow: hidden;
+  * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
+}
+
+.dashboard-container { padding: 25px; height: 100%; display: flex; flex-direction: column; }
+
+// --- HEADER ---
+.header-painel {
+  flex-shrink: 0; display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid $border;
+
+  .titulo-area {
+    h1 { font-size: 1.8rem; margin: 0; color: white; span { color: $gold; } }
+    .subtitulo { color: #888; margin: 5px 0 0; font-size: 0.9rem; }
+  }
+
+  .btn-novo {
+    background: linear-gradient(135deg, $gold 0%, #f9d877 100%); color: black; border: none;
+    padding: 12px 24px; border-radius: 12px; cursor: pointer; font-weight: 800;
+    display: flex; align-items: center; justify-content: center; gap: 8px; 
+    transition: 0.2s; font-size: 0.85rem; letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+    
+    .icone { font-size: 1.3rem; font-weight: 900; line-height: 1; margin-top: -2px; }
+    &:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(212, 175, 55, 0.3); }
+  }
+}
+
+// --- TABELA ---
+.tabela-premium {
+  flex: 1; background: #161616; border: 1px solid $border; border-radius: 16px; overflow: hidden;
+  display: flex; flex-direction: column; min-height: 0;
+  
+  .tabela-header {
+    display: grid; grid-template-columns: 1.2fr 2.5fr 1fr 0.8fr; padding: 18px 25px;
+    background: #1a1a1a; color: $gold; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;
+  }
+
+  .tabela-body {
+    flex: 1; overflow-y: auto;
+    &::-webkit-scrollbar { width: 6px; }
+    &::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+  }
+
+  .tabela-linha {
+    display: grid; grid-template-columns: 1.2fr 2.5fr 1fr 0.8fr; padding: 18px 25px;
+    border-bottom: 1px solid #1f1f1f; align-items: center; color: #ddd; transition: 0.2s;
+    &:hover { background: rgba(255, 255, 255, 0.02); }
+    
+    .col-data { color: #666; font-size: 0.85rem; font-weight: bold; }
+    .col-desc { font-weight: 500; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: white; }
+    .col-valor { color: $cor-erro; font-weight: 800; font-size: 1rem; text-align: right; }
+    
+    .col-acao { 
+      display: flex; justify-content: center;
+      .btn-icon-delete {
+        background: #222; border: 1px solid #333; color: #555; width: 38px; height: 38px;
+        border-radius: 8px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center;
+        &:hover { border-color: $cor-erro; color: white; background: rgba(255, 68, 68, 0.1); } 
+        font-size: 1.1rem;
+      }
+    }
+  }
+}
+
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+
+.empty-state-gasto {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px; color: #333;
+  .icon-ghost { font-size: 3.5rem; margin-bottom: 15px; opacity: 0.3; filter: grayscale(100%); }
+  p { font-weight: bold; color: #555; margin: 0; }
+}
+
+// --- ESPECÍFICOS DO FORMULÁRIO DE NOTAS ---
+.add-row {
+  display: flex; gap: 10px;
+  .flex-grow { flex: 1; }
+  .width-small { width: 90px; text-align: center; }
+  .btn-add { 
+    background: #222; border: 1px solid #333; color: $gold; width: 52px; border-radius: 10px; 
+    font-size: 1.5rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; padding-bottom: 4px;
+    &:hover { background: $gold; color: black; border-color: $gold; }
+  }
+}
+
+.destaque-valor { font-size: 1.4rem !important; color: $gold !important; font-weight: bold; letter-spacing: 0.5px; }
+.separator { height: 1px; background: #222; margin: 0; }
+
+// Lista Tags
+.lista-tags-container {
+  display: flex; flex-wrap: wrap; gap: 8px; min-height: 50px; padding: 12px; background: #0f0f0f; border-radius: 10px; border: 1px dashed #333;
+  .aviso-vazio { width: 100%; text-align: center; color: #444; font-size: 0.85rem; font-style: italic; margin-top: 10px; }
+  
+  .tag-item {
+    background: #222; color: #eee; padding: 8px 14px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; border: 1px solid #333; display: flex; align-items: center; gap: 8px; animation: scaleUp 0.2s;
+    .remove-tag { background: none; border: none; cursor: pointer; color: #666; font-weight: bold; font-size: 0.9rem; padding: 0; &:hover { color: $cor-erro; } }
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-container { padding: 15px; }
+
+  .header-painel {
+    flex-direction: column; align-items: stretch; gap: 15px;
+    .titulo-area { text-align: center; }
+    .btn-novo { width: 100%; justify-content: center; padding: 15px; }
+  }
+
+  // Tabela vira Cards no Mobile
+  .tabela-premium {
+    background: transparent; border: none; overflow: visible;
+    .tabela-header { display: none; }
+    .tabela-body { padding: 0; gap: 10px; display: flex; flex-direction: column; }
+
+    .tabela-linha {
+      background: #161616; border: 1px solid #2a2a2a; border-radius: 12px;
+      display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 15px; position: relative;
+      
+      .col-data { font-size: 0.8rem; color: #555; order: 1; }
+      .col-desc { font-size: 1.1rem; width: 100%; white-space: normal; order: 2; margin-bottom: 5px; }
+      .col-valor { 
+        font-size: 1.4rem; align-self: flex-start; order: 3; width: 100%; text-align: left;
+        display: flex; align-items: center; justify-content: space-between;
+        &::before { content: "Total"; color: #444; font-size: 0.9rem; font-weight: normal; margin-right: 10px; }
+      }
+      .col-acao { position: absolute; top: 15px; right: 15px; }
+    }
+  }
+}

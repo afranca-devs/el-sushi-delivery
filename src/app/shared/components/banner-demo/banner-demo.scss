@@ -1,0 +1,97 @@
+.faixa-demonstracao {
+  position: sticky;
+  top: 0;
+  z-index: 9999;
+  background: linear-gradient(90deg, #18181b 0%, #27272a 100%);
+  color: #f4f4f5;
+  border-bottom: 1px solid rgba(244, 63, 94, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  font-size: 0.85rem;
+  padding: 8px 16px;
+}
+
+.conteudo-faixa {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.informacao {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .icone-destaque {
+    font-size: 1.1rem;
+  }
+
+  .texto-principal {
+    color: #e4e4e7;
+    strong {
+      color: #fb7185;
+    }
+  }
+}
+
+.acoes-faixa {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .botao-restaurar {
+    background-color: #e11d48;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: #be123c;
+    }
+  }
+
+  .link-github {
+    color: #a1a1aa;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid #3f3f46;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: #ffffff;
+      border-color: #71717a;
+      background-color: #27272a;
+    }
+  }
+
+  .botao-fechar {
+    background: transparent;
+    border: none;
+    color: #a1a1aa;
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 4px;
+    line-height: 1;
+
+    &:hover {
+      color: #ffffff;
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .conteudo-faixa {
+    justify-content: center;
+    text-align: center;
+  }
+}

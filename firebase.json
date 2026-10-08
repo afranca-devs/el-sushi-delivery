@@ -1,0 +1,17 @@
+{
+  "hosting": {
+    "target": "site-novo",
+    "public": "dist/el-sushi/browser",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}

@@ -1,0 +1,191 @@
+<div class="dashboard-container">
+  <header class="header-painel">
+    <div class="titulo-area">
+      <h1>Painel de Vendas <span>💰</span></h1>
+      
+      <div class="seletor-abas">
+        <button [class.ativa]="abaAtiva() === 'resumo'" (click)="trocarAba('resumo')">RESUMO GERAL</button>
+        <button [class.ativa]="abaAtiva() === 'historico'" (click)="trocarAba('historico')">EXTRATO DE VENDAS</button>
+        <button [class.ativa]="abaAtiva() === 'recusados'" (click)="trocarAba('recusados')">RECUSADOS</button>
+      </div>
+    </div>
+
+    <div class="filtros-container">
+      <div class="filtros-periodo">
+        <button [class.ativo]="filtroPeriodo() === 'hoje'" (click)="aplicarFiltro('hoje')">Hoje</button>
+        <button [class.ativo]="filtroPeriodo() === '7dias'" (click)="aplicarFiltro('7dias')">7 Dias</button>
+        <button [class.ativo]="filtroPeriodo() === '30dias'" (click)="aplicarFiltro('30dias')">30 Dias</button>
+        <button [class.ativo]="filtroPeriodo() === 'personalizado'" (click)="filtroPeriodo.set('personalizado')">📅 Datas</button>
+        <button [class.ativo]="filtroPeriodo() === 'todos'" (click)="aplicarFiltro('todos')">Tudo</button>
+      </div>
+
+      @if (filtroPeriodo() === 'personalizado') {
+        <div class="seletor-datas-premium">
+          <div class="data-grupo">
+            <span>DE</span>
+            <input type="date" [(ngModel)]="dataInicio" (change)="aplicarFiltro('personalizado')" />
+          </div>
+          
+          <div class="separador-datas">→</div>
+
+          <div class="data-grupo">
+            <span>ATÉ</span>
+            <input type="date" [(ngModel)]="dataFim" (change)="aplicarFiltro('personalizado')" />
+          </div>
+        </div>
+      }
+    </div>
+  </header>
+
+  <div class="content-body">
+    
+    @if (abaAtiva() === 'resumo') {
+      <div class="grid-superior">
+        <div class="card-metrica gold">
+          <div class="card-inner">
+            <span class="label">Faturamento Bruto</span>
+            <strong>{{ totalFaturamento() | currency: 'BRL' }}</strong>
+            <div class="detalhe">📈 {{ vendas().length }} vendas concluídas</div>
+          </div>
+        </div>
+
+        <div class="card-metrica red">
+          <div class="card-inner">
+            <span class="label">Gastos (Notas)</span>
+            <strong>{{ totalGastos() | currency: 'BRL' }}</strong>
+            <div class="detalhe">📉 {{ despesas().length }} notas lançadas</div>
+          </div>
+        </div>
+
+        <div class="card-metrica green">
+          <div class="card-inner">
+            <span class="label">Lucro Líquido Real</span>
+            <strong class="lucro-destaque">{{ totalLucro() | currency: 'BRL' }}</strong>
+            <div class="detalhe">✨ Dinheiro limpo no bolso</div>
+          </div>
+        </div>
+
+        <div class="container-detalhes">
+          <div class="card-analise">
+            <h3>Distribuição de Receita</h3>
+            <div class="item-barra">
+              <div class="info-barra"><span>Pix</span><strong>{{ totalPix() | currency: 'BRL' }}</strong></div>
+              <div class="barra-fundo"><div class="progresso pix" [style.width.%]="porcentagemPix()"></div></div>
+            </div>
+            <div class="item-barra">
+              <div class="info-barra"><span>Dinheiro</span><strong>{{ totalDinheiro() | currency: 'BRL' }}</strong></div>
+              <div class="barra-fundo"><div class="progresso dinheiro" [style.width.%]="porcentagemDinheiro()"></div></div>
+            </div>
+            <div class="item-barra">
+              <div class="info-barra"><span>Cartão</span><strong>{{ totalCartao() | currency: 'BRL' }}</strong></div>
+              <div class="barra-fundo"><div class="progresso cartao" [style.width.%]="porcentagemCartao()"></div></div>
+            </div>
+          </div>
+
+          <div class="ranking-topo">
+            <h3>🏆 Top 3 Produtos</h3>
+            <div class="ranking-lista">
+              @for (item of rankingProdutos(); track item.nome) {
+                <div class="item-ranking-mini">
+                  <span class="nome">{{ item.nome }}</span>
+                  <span class="qtd">{{ item.qtd }} vendidos</span>
+                </div>
+              } @empty {
+                <div class="ranking-empty">Sem vendas hoje.</div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    } 
+    
+    @else if (abaAtiva() === 'historico') {
+      <div class="secao-historico extrato-full">
+        <div class="tabela-premium">
+          <div class="tabela-header">
+            <span>DATA</span>
+            <span>CLIENTE</span>
+            <span class="text-center">PAGAMENTO</span>
+            <span class="text-right">VALOR</span>
+          </div>
+
+          <div class="tabela-body">
+            @for (venda of vendasPaginadas(); track venda.id) {
+              <div class="tabela-linha">
+                <span class="col-data">{{ venda.concluidoEm?.seconds * 1000 | date: 'dd/MM HH:mm' }}</span>
+                <span class="col-cliente">{{ venda.cliente.nome || venda.cliente }}</span>
+                <span class="col-pagamento text-center">
+                  <span class="badge-pag" 
+                    [class.pix]="venda.pagamento?.toLowerCase() === 'pix'"
+                    [class.dinheiro]="venda.pagamento?.toLowerCase() === 'dinheiro' || venda.pagamento?.toLowerCase() === 'especie'"
+                    [class.cartao]="venda.pagamento?.toLowerCase().includes('cart')">
+                    {{ venda.pagamento }}
+                  </span>
+                </span>
+                <span class="col-valor">{{ venda.total || 0 | currency: 'BRL' }}</span>
+              </div>
+            } @empty {
+              <div class="empty-state-vendas">
+                <div class="icon-ghost">🧾</div>
+                <p>Nenhuma venda encontrada.</p>
+              </div>
+            }
+          </div>
+
+          @if (totalPaginas() > 1) {
+            <div class="tabela-footer pagination">
+              <button class="btn-nav" [disabled]="!temAnterior()" (click)="mudarPagina(-1)"> < Anterior </button>
+              <span class="info-pag">Página {{ paginaAtual() + 1 }} de {{ totalPaginas() }}</span>
+              <button class="btn-nav" [disabled]="!temProxima()" (click)="mudarPagina(1)"> Próximo > </button>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    @else if (abaAtiva() === 'recusados') {
+      <div class="secao-historico extrato-full">
+        <div class="resumo-perdas">
+          <span class="titulo-perda">Total Perdido no Período:</span>
+          <span class="valor-perda">{{ totalPerdido() | currency: 'BRL' }}</span>
+        </div>
+
+        <div class="tabela-premium">
+          <div class="tabela-header grid-recusados">
+            <span>DATA</span>
+            <span>CLIENTE</span>
+            <span>MOTIVO DO CANCELAMENTO</span>
+            <span class="text-right">VALOR</span>
+          </div>
+
+          <div class="tabela-body">
+            @for (recusa of recusadosPaginados(); track recusa.id) {
+              <div class="tabela-linha grid-recusados">
+                <span class="col-data">{{ recusa.concluidoEm?.seconds * 1000 | date: 'dd/MM HH:mm' }}</span>
+                <span class="col-cliente">{{ recusa.cliente.nome || recusa.cliente }}</span>
+                <span class="col-motivo">
+                  ⚠️ {{ recusa.motivoCancelamento || 'Sem motivo informado' }}
+                </span>
+                <span class="col-valor valor-riscado">{{ recusa.total || 0 | currency: 'BRL' }}</span>
+              </div>
+            } @empty {
+              <div class="empty-state-vendas">
+                <div class="icon-ghost">✅</div>
+                <p>Nenhum pedido recusado neste período!</p>
+              </div>
+            }
+          </div>
+
+          @if (totalPaginas() > 1) {
+            <div class="tabela-footer pagination">
+              <button class="btn-nav" [disabled]="!temAnterior()" (click)="mudarPagina(-1)"> < Anterior </button>
+              <span class="info-pag">Página {{ paginaAtual() + 1 }} de {{ totalPaginas() }}</span>
+              <button class="btn-nav" [disabled]="!temProxima()" (click)="mudarPagina(1)"> Próximo > </button>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  
+  </div> 
+</div>

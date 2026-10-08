@@ -1,0 +1,119 @@
+.footer {
+  background-color: #050505;
+  color: #888;
+  padding: 2rem 0;
+  border-top: 1px solid #222;
+  font-size: 0.9rem;
+  margin-top: auto;
+}
+.content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+strong {
+  color: #d4af37;
+}
+
+.copyright p {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center; 
+  gap: 8px;
+  flex-wrap: wrap; 
+}
+
+.admin-lock {
+  text-decoration: none;
+  font-size: 0.8rem;
+  opacity: 0.2;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+.admin-lock:hover {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+/* DEV AREA */
+.dev-area {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.label {
+  font-size: 0.8rem;
+  color: #555;
+}
+
+.dev-name {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  transition: 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.dev-name:hover {
+  color: #d4af37;
+}
+.icon-code {
+  color: #d4af37;
+}
+
+.social-icons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding-left: 10px;
+  border-left: 1px solid #333;
+}
+.social-icons a {
+  color: #666;
+  transition: 0.3s;
+  display: flex;
+}
+.social-icons a:hover {
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+/* --- MOBILE (CELULAR) --- */
+@media (max-width: 768px) {
+  .footer {
+    padding: 1.5rem 0; /* Padding menor no mobile */
+  }
+
+  .content {
+    flex-direction: column; /* Empilha verticalmente */
+    justify-content: center;
+    text-align: center;
+    gap: 20px; /* Espaço entre o Copyright e o Dev */
+  }
+
+  .copyright p {
+    justify-content: center; /* Centraliza o texto e o cadeado */
+    flex-wrap: wrap; /* Permite quebrar linha se o nome for grande */
+    line-height: 1.5;
+  }
+
+  .dev-area {
+    justify-content: center;
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 10px; /* Espaço entre "Desenvolvido por", Nome e ícones */
+  }
+
+  .social-icons {
+    border-left: none; /* Remove a linha divisória no celular */
+    padding-left: 0;
+    margin-left: 5px;
+  }
+}

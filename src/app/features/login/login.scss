@@ -1,0 +1,237 @@
+$gold: #d4af37;
+$bg-dark: #0a0a0a;
+
+:host {
+  display: block;
+  * { box-sizing: border-box; }
+}
+
+.login-container {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow: hidden;
+  background-color: $bg-dark;
+}
+
+.bg-image {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background-image: url('https://images.unsplash.com/photo-1579871494447-9811cf80d66c?q=80&w=1470&auto=format&fit=crop');
+  background-size: cover;
+  background-position: center;
+  filter: blur(8px);
+  transform: scale(1.1);
+  z-index: 0;
+}
+
+.bg-overlay {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 1;
+}
+
+.login-card {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 380px; 
+
+  background: rgba(20, 20, 20, 0.6);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+
+  border-radius: 20px;
+  padding: 40px 30px;
+  text-align: center;
+  animation: slideUp 0.5s ease-out;
+
+  .logo-area {
+    margin-bottom: 20px;
+    display: flex; justify-content: center;
+    
+    .logo-circle {
+      width: 90px; height: 90px;
+      border-radius: 50%;
+      border: 3px solid $gold;
+      padding: 3px;
+      background: rgba(0, 0, 0, 0.5);
+      
+      img {
+        width: 100%; height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+    }
+  }
+
+  h2 {
+    color: $gold;
+    margin: 0;
+    font-size: 1.4rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 800;
+  }
+
+  .subtitulo {
+    color: #999;
+    margin: 5px 0 25px;
+    font-size: 0.85rem;
+  }
+}
+
+.form-wrapper {
+  width: 100%;
+}
+
+.grupo-input {
+  text-align: left;
+  margin-bottom: 18px;
+  width: 100%;
+
+  label {
+    display: block;
+    color: #ddd;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    margin-left: 2px;
+  }
+
+  .input-premium {
+    width: 100%; 
+    display: block;
+    
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    
+    outline: none;
+    transition: all 0.2s ease-in-out;
+
+    &:focus {
+      border-color: $gold;
+      background: rgba(0, 0, 0, 0.6);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+    }
+
+    &::placeholder {
+      color: #666;
+      font-weight: 400;
+    }
+  }
+}
+
+.btn-entrar {
+  width: 100%;
+  background: linear-gradient(135deg, $gold 0%, #f9d877 100%);
+  color: #000;
+  border: none;
+  padding: 14px;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  margin-top: 10px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: transform 0.2s;
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+
+  &:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.3);
+  }
+  &:active { transform: scale(0.98); }
+}
+
+.btn-voltar {
+  background: transparent;
+  color: #777;
+  border: none;
+  width: 100%;
+  padding: 12px;
+  margin-top: 5px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: color 0.2s;
+  text-decoration: underline;
+
+  &:hover { color: #fff; }
+}
+
+.footer-login {
+  position: relative; z-index: 10;
+  color: #555; font-size: 0.75rem; margin-top: 20px;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.85); // Fundo bem escuro
+  backdrop-filter: blur(5px);
+  z-index: 999;
+  display: flex; align-items: center; justify-content: center;
+  animation: fadeIn 0.3s;
+}
+
+.modal-card {
+  background: #151515;
+  border: 1px solid #333;
+  width: 90%; max-width: 320px;
+  border-radius: 16px;
+  padding: 25px;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+  animation: scaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  .icon-area {
+    font-size: 3rem; margin-bottom: 10px;
+  }
+
+  h3 {
+    color: white; margin: 0 0 10px; font-size: 1.2rem;
+  }
+
+  p {
+    color: #aaa; margin: 0 0 20px; font-size: 0.95rem; line-height: 1.4;
+  }
+
+  .btn-modal {
+    width: 100%;
+    background: #333;
+    color: white;
+    border: 1px solid #444;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+
+    &:hover {
+      background: $gold;
+      color: black;
+      border-color: $gold;
+    }
+  }
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes scaleUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }

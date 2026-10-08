@@ -1,0 +1,41 @@
+<div class="admin-wrapper">
+  <aside class="sidebar">
+    <div class="logo-area">
+      <img src="assets/logo.jpg" alt="Admin" onerror="this.style.display='none'">
+      <div class="texto-logo">
+        <span class="titulo">E&L Sushi</span>
+        <span class="subtitulo">Painel Admin</span>
+      </div>
+    </div>
+
+    <nav class="menu-navegacao">
+      <a routerLink="/admin/dashboard" routerLinkActive="ativo" [routerLinkActiveOptions]="{exact: true}">
+        📊 <span class="texto">Pedidos (Kanban)</span>
+      </a>
+
+      <a routerLink="/admin/cardapio" routerLinkActive="ativo">
+        🍣 <span class="texto">Gerenciar Cardápio</span>
+      </a>
+
+      @if (podeVerRelatorios()) {
+        <a routerLink="/admin/notas" routerLinkActive="ativo">
+          📝 <span class="texto">Notas de Gastos</span>
+        </a>
+
+        <a routerLink="/admin/vendas" routerLinkActive="ativo">
+          💰 <span class="texto">Relatório Vendas</span>
+        </a>
+      }
+    </nav>
+
+    <div class="footer-sidebar">
+      <button (click)="sair()" class="btn-sair">
+        🚪 <span class="texto">Sair do Sistema</span>
+      </button>
+    </div>
+  </aside>
+
+  <main class="conteudo-principal">
+    <router-outlet></router-outlet> 
+  </main>
+</div>

@@ -1,0 +1,127 @@
+<div class="dashboard-container">
+  <header class="header-painel">
+    <div class="titulo-area">
+      <h1>Notas e Despesas <span>📝</span></h1>
+      <p class="subtitulo">Controle de saídas: mercado, insumos e outros</p>
+    </div>
+
+    <button class="btn-novo" (click)="exibirForm.set(true)">
+      <span class="icone">+</span> LANÇAR NOTA
+    </button>
+  </header>
+
+  <div class="corpo-notas">
+    <div class="tabela-premium">
+      <div class="tabela-header">
+        <span>DATA</span>
+        <span>ITENS COMPRADOS</span>
+        <span class="text-right">VALOR TOTAL</span>
+        <span class="text-center">AÇÃO</span>
+      </div>
+
+      <div class="tabela-body">
+        @for (nota of notas(); track nota.id) {
+          <div class="tabela-linha">
+            <span class="col-data">{{ nota.data?.seconds * 1000 | date: 'dd/MM/yyyy' }}</span>
+            <span class="col-desc">
+              @if(nota.itens && nota.itens.length > 0) {
+                {{ nota.itens.join(', ') }}
+              } @else {
+                {{ nota.descricao }}
+              }
+            </span>
+            <span class="col-valor text-right">{{ nota.valor | currency: 'BRL' }}</span>
+            
+            <div class="col-acao">
+              <button class="btn-icon-delete" (click)="abrirConfirmacaoExclusao(nota.id)" title="Excluir Registro">
+                🗑️
+              </button>
+            </div>
+          </div>
+        } @empty {
+          <div class="empty-state-gasto">
+            <div class="icon-ghost">🧾</div>
+            <p>Nenhuma nota lançada no momento.</p>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  @if (exibirForm()) {
+    <app-modal-base 
+      titulo="📝 Registrar Nova Nota" 
+      (fechar)="fecharModalCadastro()">
+      
+      <ng-container modal-body>
+        <div class="grupo-input">
+          <label>Adicionar Itens na Nota</label>
+          <div class="add-row">
+            <input 
+              [(ngModel)]="itemTempNome" 
+              placeholder="Ex: Salmão, Arroz..." 
+              class="input-premium flex-grow"
+              (keyup.enter)="adicionarItemNaLista()"
+            >
+            <input 
+              [(ngModel)]="itemTempQtd" 
+              placeholder="Qtd" 
+              class="input-premium width-small"
+              (keyup.enter)="adicionarItemNaLista()"
+            >
+            <button class="btn-add" (click)="adicionarItemNaLista()">+</button>
+          </div>
+        </div>
+
+        <div class="lista-tags-container">
+          @for (item of listaItens(); track $index) {
+            <div class="tag-item">
+              <span>{{ item }}</span>
+              <button class="remove-tag" (click)="removerItemDaLista($index)">✕</button>
+            </div>
+          } @empty {
+            <div class="aviso-vazio">Nenhum item adicionado ainda.</div>
+          }
+        </div>
+        
+        <div class="separator"></div>
+
+        <div class="grupo-input">
+          <label>Valor Total da Nota (R$)</label>
+          <input 
+            type="number" 
+            [(ngModel)]="novaNotaValor" 
+            placeholder="0,00" 
+            class="input-premium destaque-valor"
+          >
+        </div>
+      </ng-container>
+
+      <ng-container modal-footer>
+        <button class="btn-cancelar" (click)="fecharModalCadastro()">CANCELAR</button>
+        <button class="btn-salvar" (click)="salvarNota()" [disabled]="listaItens().length === 0 || !novaNotaValor">
+          SALVAR NOTA
+        </button>
+      </ng-container>
+
+    </app-modal-base>
+  }
+
+  @if (exibirConfirmacao()) {
+    <app-modal-confirmacao
+      titulo="Excluir Nota?"
+      icone="⚠️"
+      tipo="perigo"
+      textoConfirmar="EXCLUIR"
+      textoCancelar="VOLTAR"
+      (confirmar)="confirmarExclusao()"
+      (cancelar)="fecharConfirmacao()">
+      
+      <p>
+        Deseja remover este gasto de <strong>R$ {{ notaValorParaExcluir() | number:'1.2-2' }}</strong>?
+      </p>
+      <p class="aviso-pequeno">O valor será estornado do cálculo de lucro.</p>
+      
+    </app-modal-confirmacao>
+  }
+</div>

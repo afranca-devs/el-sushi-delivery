@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "el-sushi-a1ef2"
+  },
+  "targets": {
+    "el-sushi-a1ef2": {
+      "hosting": {
+        "site-novo": [
+          "eel-sushi-yakisoba"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

@@ -1,0 +1,97 @@
+$gold: #d4af37;
+$dark-bg: #0a0a0a;
+$sidebar-bg: #111;
+$border: #222;
+
+:host { display: block; height: 100vh; overflow: hidden; }
+
+.admin-wrapper {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  background-color: $dark-bg;
+  color: white;
+}
+
+// --- SIDEBAR DESKTOP ---
+.sidebar {
+  width: 260px;
+  background-color: $sidebar-bg;
+  border-right: 1px solid $border;
+  display: flex; flex-direction: column;
+  height: 100%;
+  flex-shrink: 0;
+  transition: width 0.3s ease;
+
+  .logo-area {
+    padding: 20px;
+    border-bottom: 1px solid $border;
+    display: flex; align-items: center; gap: 15px;
+    
+    img { 
+      width: 45px; height: 45px; 
+      border-radius: 50%; border: 2px solid $gold; object-fit: cover;
+      transition: 0.3s; // Transição suave para mudança de tamanho
+    }
+    
+    .texto-logo {
+      display: flex; flex-direction: column; overflow: hidden; white-space: nowrap;
+      .titulo { font-weight: bold; color: $gold; text-transform: uppercase; letter-spacing: 1px; }
+      .subtitulo { font-size: 0.8rem; color: #666; }
+    }
+  }
+
+  .menu-navegacao {
+    flex: 1; padding: 20px 10px; overflow-y: auto;
+    display: flex; flex-direction: column; gap: 5px;
+
+    a {
+      text-decoration: none; color: #aaa; padding: 12px 15px; border-radius: 8px;
+      font-weight: 500; display: flex; align-items: center; gap: 12px;
+      transition: all 0.2s; font-size: 0.95rem; white-space: nowrap;
+
+      &:hover { background-color: rgba(255, 255, 255, 0.05); color: white; transform: translateX(5px); }
+      &.ativo { background-color: rgba(212, 175, 55, 0.15); color: $gold; border-right: 3px solid $gold; }
+    }
+  }
+
+  .footer-sidebar {
+    padding: 20px; border-top: 1px solid $border; background: $sidebar-bg;
+    .btn-sair {
+      width: 100%; background: transparent; border: 1px solid #333; color: #888;
+      padding: 10px; border-radius: 8px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      transition: 0.2s;
+      &:hover { background: #222; color: #ff4444; border-color: #ff4444; }
+    }
+  }
+}
+
+// --- CONTEÚDO PRINCIPAL ---
+.conteudo-principal {
+  flex: 1; height: 100%; overflow: hidden; position: relative; display: flex; flex-direction: column;
+}
+
+// 🔥📱 RESPONSIVIDADE MOBILE 🔥
+@media (max-width: 768px) {
+  .sidebar {
+    width: 70px; // Largura compacta
+
+    // ✅ ESCONDE O TEXTO DA LOGO E AUMENTA O ÍCONE
+    .logo-area { 
+      justify-content: center; 
+      padding: 15px 0; 
+      gap: 0; // Remove o espaço entre imagem e o texto invisível
+
+      .texto-logo { display: none !important; } // Garante que o texto suma
+      
+      img { 
+        width: 50px; height: 50px; // Levemente maior no mobile para destaque
+      }
+    }
+
+    // Esconde textos dos menus e botão sair
+    .menu-navegacao a { justify-content: center; padding: 15px 0; font-size: 1.4rem; .texto { display: none; } }
+    .footer-sidebar { padding: 15px 10px; .btn-sair span { display: none; } }
+  }
+}

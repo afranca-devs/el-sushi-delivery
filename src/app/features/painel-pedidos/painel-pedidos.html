@@ -1,0 +1,405 @@
+<div class="dashboard-container">
+  <header class="header-painel">
+    <div class="titulo-area">
+      <h1>Controle de Pedidos <span>🍣</span></h1>
+      <span class="status-loja-badge" [class.fechada]="!lojaAberta()">
+        {{ lojaAberta() ? '🟢 LOJA ABERTA' : '🔴 LOJA FECHADA' }}
+      </span>
+      <span class="data-hoje">{{ agora | date: 'dd/MM/yyyy - HH:mm' }}</span>
+    </div>
+
+    <div class="acoes-header">
+      @if (modoExibicao() === 'kanban') {
+        <button class="btn-config" (click)="abrirModalConfig()"><span>⚙️</span> AJUSTES</button>
+        <button class="btn-mesas" (click)="irParaMesas()"><span>🍻</span> GESTÃO DE MESAS</button>
+        <button class="btn-novo" (click)="abrirModalManual()"><span>+</span> NOVO PEDIDO</button>
+      }
+    </div>
+  </header>
+
+  @if (modoExibicao() === 'kanban') {
+    <div class="kanban-board">
+      <div class="coluna pendente">
+        <div class="coluna-header">
+          <h2>🕒 Pendentes</h2>
+          <span class="badge">{{ pendentes.length }}</span>
+        </div>
+        <div class="cards-area">
+          @for (p of pendentes; track p.id) {
+            <div class="card-pedido" [class.atrasado]="isAtrasado(p.data)">
+              <div class="card-header">
+                <span class="id-pedido">{{ getPedidoId(p) }}</span><span class="tempo-decorrido">🕒 {{ calcularTempo(p.data) }}</span>
+              </div>
+              @if (p.isRetirada) {
+                <div class="badge-retirada">🛍️ RETIRADA</div>
+              }
+              <div class="cliente-info">
+                <strong>{{ getClienteNome(p) }}</strong><span class="pagamento-info"> • {{ p.pagamento }} • {{ p.total | currency: 'BRL' }}</span>
+              </div>
+              <div class="itens-resumo">
+                @for (item of p.itens; track $index) {
+                  <div class="item-linha">
+                    <span class="qtd">{{ item.quantidade }}x</span> {{ item.nome || item.produto?.nome }}
+                  </div>
+                }
+              </div>
+              @if (p.observacao) {
+                <div class="obs-card">📝 {{ p.observacao }}</div>
+              }
+              <div class="acoes-card row-botoes">
+                <button class="btn-acao recusar" (click)="solicitarRecusa(p)">RECUSAR ❌</button>
+                <button class="btn-acao aceitar" (click)="moverStatus(p, 'preparando')">ACEITAR ✅</button>
+              </div>
+            </div>
+          } @empty {
+            <div class="empty-state-premium"><div class="icon-ghost">🛎️</div><h4>Sem novos</h4></div>
+          }
+        </div>
+      </div>
+
+      <div class="coluna preparando">
+        <div class="coluna-header">
+          <h2>🔥 Cozinha</h2>
+          <span class="badge">{{ preparando.length }}</span>
+        </div>
+        <div class="cards-area">
+          @for (p of preparando; track p.id) {
+            <div class="card-pedido">
+              <div class="card-top">
+                <span class="pedido-id">{{ getPedidoId(p) }}</span><span class="status-cozinha">PREPARANDO</span>
+              </div>
+              <h3 class="cliente">{{ getClienteNome(p) }}</h3>
+              <ul class="itens-lista">
+                @for (item of p.itens; track $index) {
+                  <li><span class="qtd">{{ item.quantidade }}x</span> {{ item.nome || item.produto?.nome }}</li>
+                }
+              </ul>
+              @if (p.observacao) {
+                <div class="obs-card">📝 {{ p.observacao }}</div>
+              }
+              <div class="card-actions">
+                <button class="btn-icon print" (click)="imprimirComanda(p)">🖨️</button>
+                <button class="btn-texto enviar" (click)="moverStatus(p, 'aguardando')">PRONTO 🥡</button>
+              </div>
+            </div>
+          } @empty {
+            <div class="empty-state-premium"><div class="icon-ghost">👨‍🍳</div><h4>Livre</h4></div>
+          }
+        </div>
+      </div>
+
+      <div class="coluna entregue">
+        <div class="coluna-header">
+          <h2>🚀 Entrega</h2>
+          <span class="badge">{{ entregues.length }}</span>
+        </div>
+        <div class="cards-area">
+          @for (p of entregues; track p.id) {
+            <div class="card-pedido">
+              <div class="card-top">
+                <span class="pedido-id">{{ getPedidoId(p) }}</span>
+                @if (p.status === 'aguardando') {
+                  <span class="status-badge amarelo">🟡 AGUARDANDO</span>
+                } @else {
+                  <span class="status-badge verde">🟢 EM ROTA</span>
+                }
+              </div>
+              <h3 class="cliente">{{ getClienteNome(p) }}</h3>
+              <p class="endereco-curto">📍 {{ p.cliente?.endereco?.bairro || 'Retirada' }}</p>
+              <div class="card-actions">
+                @if (p.status === 'aguardando') {
+                  <button class="btn-texto acao-moto" (click)="moverStatus(p, 'em_rota')">
+                    {{ p.isRetirada ? 'RETIRADA OK ✅' : 'SAIU ENTREGA 🛵' }}
+                  </button>
+                } @else {
+                  <div class="botoes-finais">
+                    <button class="btn-cancelar-entrega" (click)="solicitarRecusa(p)">✖</button>
+                    <button class="btn-texto concluir" (click)="solicitarConclusao(p)">FINALIZAR 🏁</button>
+                  </div>
+                }
+              </div>
+            </div>
+          } @empty {
+            <div class="empty-state-premium"><div class="icon-ghost">🛵</div><h4>Vazio</h4></div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (modoExibicao() === 'mesas') {
+    <div class="container-mesas">
+      <div class="header-mesas">
+        <button class="btn-voltar" (click)="voltarProDelivery()">🔙 VOLTAR</button>
+        <h2>Comandas Abertas</h2>
+        <button class="btn-abrir-mesa" (click)="abrirModalManual()">+ NOVA COMANDA</button>
+      </div>
+
+      <div class="grid-comandas">
+        @for (c of comandas; track c.id) {
+          <div class="card-comanda">
+            <div class="comanda-head">
+              <span class="mesa-icon">🍻</span>
+              <h3>{{ getClienteNome(c) }}</h3>
+              <span class="tempo">{{ calcularTempo(c.data) }}</span>
+            </div>
+            <div class="comanda-body">
+              <ul class="itens-comanda">
+                @for (item of c.itens; track $index) {
+                  <li>
+                    <span class="nome">{{ item.quantidade }}x {{ item.nome || item.produto?.nome }}</span>
+                    <span class="valor">{{ (item.preco || item.produto?.preco) * item.quantidade | currency: 'BRL' }}</span>
+                  </li>
+                }
+              </ul>
+            </div>
+            <div class="comanda-total">
+              <span>Total:</span><strong>{{ c.total | currency: 'BRL' }}</strong>
+            </div>
+            <div class="comanda-actions">
+              <button class="btn-add-item" (click)="abrirModalManual(c)">+ ITEM</button>
+              <button class="btn-fechar-conta" (click)="abrirFecharConta(c)">FECHAR 💲</button>
+            </div>
+          </div>
+        } @empty {
+          <div class="empty-state-comandas"><div class="icon-beer">🍻</div><h3>Nenhuma mesa aberta</h3><p>Clique no botão acima para abrir.</p></div>
+        }
+      </div>
+    </div>
+  }
+
+  @if (modalManualAberto) {
+    <app-modal-base 
+      [titulo]="idEdicao ? '✏️ Editar Item' : (modoExibicao() === 'mesas' ? '🍻 Abrir Mesa' : '📝 Novo Pedido (Balcão)')" 
+      (fechar)="fecharModais()">
+      
+      <ng-container modal-body>
+        @if (modoExibicao() === 'mesas' && !idEdicao) {
+          <div class="grupo-input">
+            <label>Nome Mesa / Cliente</label>
+            <input [(ngModel)]="novoPedido.cliente.nome" class="input-premium" placeholder="Ex: Mesa 01 ou João" />
+          </div>
+          <div class="grupo-input mt-3">
+            <label>Telefone / Zap</label>
+            <div class="input-icon">
+              <input [ngModel]="novoPedido.cliente.telefone" (input)="aplicarMascaraTelefone($event)" (blur)="buscarClientePorTelefone()" class="input-premium" placeholder="(21) 99999-9999" />
+              @if (buscandoCliente()) { <span class="spinner-mini">🔄</span> }
+            </div>
+          </div>
+          <div class="divisor">🍺 Já pedir algo?</div>
+          <div class="grupo-input">
+            <div class="busca-wrapper">
+              <input [ngModel]="termoBusca()" (ngModelChange)="termoBusca.set($event)" placeholder="Buscar item..." class="input-premium" />
+              @if (produtosFiltrados().length > 0) {
+                <ul class="autocomplete-lista">
+                  @for (p of produtosFiltrados(); track p.id) {
+                    <li (click)="selecionarProduto(p)"><span>{{ p.nome }}</span><small>{{ p.preco | currency: 'BRL' }}</small></li>
+                  }
+                </ul>
+              }
+            </div>
+            <div class="lista-escolhidos-container">
+              @for (it of novoPedido.itens; track $index) {
+                <div class="item-escolhido">
+                  <span class="info"><b>{{ it.quantidade }}x</b> {{ it.nome || it.produto?.nome }}</span>
+                  <button (click)="removerItemManual($index)" class="btn-del-item">✕</button>
+                </div>
+              }
+            </div>
+          </div>
+        } @else {
+          <div class="grupo-input">
+            <label>Cliente</label>
+            <input [(ngModel)]="novoPedido.cliente.nome" class="input-premium" placeholder="Nome do Cliente" [disabled]="!!idEdicao" />
+          </div>
+          <div class="grupo-input">
+            <label>Telefone/Zap</label>
+            <div class="input-icon">
+              <input [ngModel]="novoPedido.cliente.telefone" (input)="aplicarMascaraTelefone($event)" (blur)="buscarClientePorTelefone()" class="input-premium" placeholder="(21) 99999-9999" [disabled]="!!idEdicao" />
+              @if (buscandoCliente()) { <span class="spinner-mini">🔄</span> }
+            </div>
+          </div>
+          <div class="grupo-input">
+            <label>Adicionar Itens</label>
+            <div class="busca-wrapper">
+              <input [ngModel]="termoBusca()" (ngModelChange)="termoBusca.set($event)" placeholder="Busque no cardápio..." class="input-premium" />
+              @if (produtosFiltrados().length > 0) {
+                <ul class="autocomplete-lista">
+                  @for (p of produtosFiltrados(); track p.id) {
+                    <li (click)="selecionarProduto(p)"><span>{{ p.nome }}</span><small>{{ p.preco | currency: 'BRL' }}</small></li>
+                  }
+                </ul>
+              }
+            </div>
+            <div class="lista-escolhidos-container">
+              @for (it of novoPedido.itens; track $index) {
+                <div class="item-escolhido">
+                  <span class="info"><b>{{ it.quantidade }}x</b> {{ it.nome || it.produto?.nome }}</span>
+                  <button (click)="removerItemManual($index)" class="btn-del-item">✕</button>
+                </div>
+              } @empty {
+                <div class="aviso-vazio">Nenhum item selecionado.</div>
+              }
+            </div>
+          </div>
+          <div class="grupo-input">
+            <label>Observação (Opcional)</label>
+            <textarea [(ngModel)]="novoPedido.observacao" rows="2" class="input-premium area-texto" placeholder="Ex: Mesa 4, Sem cebola..."></textarea>
+          </div>
+          <div class="row-dupla">
+            <div class="grupo-input">
+              <label>Total R$</label>
+              <input type="number" [(ngModel)]="novoPedido.total" class="input-premium destaque-valor" placeholder="0,00" />
+            </div>
+            <div class="grupo-input">
+              <label>Pagamento</label>
+              <select [(ngModel)]="novoPedido.pagamento" class="select-premium input-premium">
+                <option value="" disabled selected>Escolha...</option>
+                <option value="Pix">Pix 📱</option>
+                <option value="Dinheiro">Dinheiro 💵</option>
+                <option value="Cartão">Cartão 💳</option>
+              </select>
+            </div>
+          </div>
+        }
+      </ng-container>
+
+      <ng-container modal-footer>
+        <button class="btn-cancelar" (click)="fecharModais()">CANCELAR</button>
+        <button class="btn-salvar" (click)="salvarPedidoManual()" [disabled]="!novoPedido.cliente.nome">
+          {{ idEdicao ? 'SALVAR 💾' : (modoExibicao() === 'mesas' ? 'ABRIR MESA 🍻' : 'LANÇAR PEDIDO 🚀') }}
+        </button>
+      </ng-container>
+    </app-modal-base>
+  }
+
+  @if (modalFecharContaAberto) {
+    <app-modal-base titulo="💲 Fechar Conta" maxWidth="400px" (fechar)="fecharModais()">
+      <ng-container modal-body>
+        <h2 style="text-align: center; color: white; margin: 10px 0">{{ getClienteNome(pedidoSelecionado) }}</h2>
+        <div class="total-zao" style="text-align: center; font-size: 2rem; color: #d4af37; font-weight: 900; margin-bottom: 20px;">
+          {{ pedidoSelecionado?.total | currency: 'BRL' }}
+        </div>
+        <div class="grupo-input">
+          <label>Forma de Pagamento *</label>
+          <select [(ngModel)]="pedidoSelecionado.pagamentoFinal" class="input-premium select-premium">
+            <option value="" disabled selected>Selecione...</option>
+            <option value="Pix">Pix 📱</option>
+            <option value="Dinheiro">Dinheiro 💵</option>
+            <option value="Cartão Débito">Débito 💳</option>
+            <option value="Cartão Crédito">Crédito 💳</option>
+          </select>
+        </div>
+      </ng-container>
+      <ng-container modal-footer>
+        <button class="btn-cancelar" (click)="fecharModais()">VOLTAR</button>
+        <button class="btn-salvar" (click)="confirmarFechamentoConta()" [disabled]="!pedidoSelecionado.pagamentoFinal">
+          RECEBER E FECHAR ✅
+        </button>
+      </ng-container>
+    </app-modal-base>
+  }
+
+  @if (modalConfigAberto) {
+    <app-modal-base titulo="⚙️ Configurações" maxWidth="550px" (fechar)="fecharModais()">
+      <ng-container modal-body>
+        <div class="secao-config">
+          <h4>Status da Loja</h4>
+          <div class="toggle-loja-wrapper">
+            <p>A loja está atualmente: <strong>{{ lojaAberta() ? 'ABERTA' : 'FECHADA' }}</strong></p>
+            <button class="btn-toggle-loja" [class.btn-fechar]="lojaAberta()" (click)="alternarLoja()">
+              {{ lojaAberta() ? 'FECHAR LOJA 🔴' : 'ABRIR LOJA 🟢' }}
+            </button>
+          </div>
+        </div>
+        <hr class="divisor" />
+        <div class="secao-config">
+          <h4>Taxas de Entrega</h4>
+          <div class="add-bairro-row">
+            <input [(ngModel)]="novoBairroNome" placeholder="Nome do Bairro" class="input-premium" />
+            <input [(ngModel)]="novoBairroTaxa" type="number" placeholder="R$" class="input-premium taxa" />
+            <button class="btn-add-bairro" (click)="addBairro()">+</button>
+          </div>
+          <div class="lista-bairros-scroll">
+            @for (b of listaBairros(); track b.id) {
+              <div class="item-bairro">
+                <span class="nome">{{ b.nome }}</span>
+                <div class="acoes-bairro">
+                  <span class="rs">R$</span>
+                  <input type="number" [value]="b.taxa" (change)="atualizarTaxa(b.id, $event)" class="input-taxa-mini" />
+                  <button class="btn-del" (click)="solicitarExclusaoBairro(b.id)">🗑️</button>
+                </div>
+              </div>
+            } @empty {
+              <p class="aviso-vazio">Nenhum bairro cadastrado.</p>
+            }
+          </div>
+        </div>
+      </ng-container>
+    </app-modal-base>
+  }
+
+  @if (modalFinalizarAberto || modalCancelarAberto) {
+    <app-modal-confirmacao
+      [titulo]="modalCancelarAberto ? 'Cancelar Pedido' : 'Confirmar Entrega'"
+      [icone]="modalCancelarAberto ? '⚠️' : '✅'"
+      [tipo]="modalCancelarAberto ? 'perigo' : 'sucesso'"
+      [textoConfirmar]="modalCancelarAberto ? 'SIM, CANCELAR' : 'SIM, FINALIZAR'"
+      (confirmar)="modalCancelarAberto ? confirmarCancelamento() : confirmarConclusao()"
+      (cancelar)="fecharModais()">
+      
+      <p style="color: #aaa; font-size: 1rem; margin-bottom: 10px;">
+        {{ modalCancelarAberto ? 'Tem certeza que deseja cancelar o pedido de:' : 'Confirmar que o pedido foi finalizado para:' }}
+      </p>
+      <strong style="font-size: 1.4rem; color: white; display: block;">
+        {{ getClienteNome(pedidoSelecionado) }} 
+        <span style="color: #d4af37">{{ getPedidoId(pedidoSelecionado) }}</span>
+      </strong>
+      @if (modalCancelarAberto) {
+        <p style="color: #ff4444; font-size: 0.8rem; margin-top: 15px; font-weight: bold;">
+          ESTA AÇÃO NÃO PODE SER DESFEITA.
+        </p>
+      }
+    </app-modal-confirmacao>
+  }
+
+  @if (modalRecusarAberto) {
+    <app-modal-confirmacao
+      titulo="Recusar Pedido"
+      icone="⛔"
+      tipo="perigo"
+      textoConfirmar="RECUSAR E AVISAR 💬"
+      (confirmar)="confirmarRecusa()"
+      (cancelar)="fecharModais()">
+      
+      <p style="color: #ccc; margin-bottom: 10px;">
+        Você está recusando o pedido de <strong>{{ getClienteNome(pedidoSelecionado) }}</strong>.<br>Informe o motivo abaixo para avisar o cliente no WhatsApp:
+      </p>
+      <div class="grupo-input" style="text-align: left;">
+        <label>Motivo da Recusa (Obrigatório) *</label>
+        <textarea [(ngModel)]="motivoRecusa" rows="3" class="input-premium area-texto" placeholder="Ex: Estamos sem entregadores, falta de ingrediente..."></textarea>
+      </div>
+      
+    </app-modal-confirmacao>
+  }
+
+  @if (modalExcluirBairroAberto) {
+    <app-modal-confirmacao
+      titulo="Remover Bairro"
+      icone="⚠️"
+      tipo="perigo"
+      textoConfirmar="SIM, REMOVER"
+      textoCancelar="VOLTAR"
+      (confirmar)="confirmarExclusaoBairro()"
+      (cancelar)="fecharModais()">
+      
+      <p style="color: #ccc; font-size: 1rem; margin-bottom: 10px;">
+        Deseja remover este bairro da lista de entregas?
+      </p>
+      <p style="color: #ff4444; font-size: 0.8rem; font-weight: bold; margin-top: 15px;">
+        O bairro não aparecerá mais para os clientes.
+      </p>
+      
+    </app-modal-confirmacao>
+  }
+</div>

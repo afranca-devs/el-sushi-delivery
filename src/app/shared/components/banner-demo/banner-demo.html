@@ -1,0 +1,30 @@
+@if (visivel()) {
+  <div class="faixa-demonstracao">
+    <div class="conteudo-faixa">
+      <div class="informacao">
+        <span class="icone-destaque">🍣</span>
+        <span class="texto-principal">
+          <strong>Modo Demonstração Interativo</strong> | Portfólio de Alexandre França
+        </span>
+      </div>
+
+      <div class="acoes-faixa">
+        <button type="button" class="botao-restaurar" (click)="restaurarDados()">
+          @if (restauradoSucesso()) {
+            <span>Dados Restaurados! ✅</span>
+          } @else {
+            <span>🔄 Restaurar Dados</span>
+          }
+        </button>
+
+        <a href="https://github.com/afranca-devs" target="_blank" rel="noopener noreferrer" class="link-github">
+          <span>GitHub</span>
+        </a>
+
+        <button type="button" class="botao-fechar" (click)="fecharBanner()" aria-label="Fechar aviso">
+          ✕
+        </button>
+      </div>
+    </div>
+  </div>
+}

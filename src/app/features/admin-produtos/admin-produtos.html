@@ -1,0 +1,142 @@
+<div class="dashboard-container">
+  <header class="header-painel">
+    <div class="titulo-area">
+      <h1>Cardápio Digital <span>🍣</span></h1>
+      <p class="subtitulo">Gerencie seus pratos</p>
+    </div>
+
+    @if (isAdmin()) {
+      <button class="btn-novo" (click)="novoProduto()">
+        <span class="icone">+</span> NOVO PRATO
+      </button>
+    }
+  </header>
+
+  <div class="lista-produtos">
+    @for (item of produtos(); track item.id) {
+      <div class="card-produto" [class.indisponivel]="!item.ativo">
+        <div class="foto-wrapper">
+          <img
+            [src]="item.imagemUrl || 'assets/sem-foto.png'"
+            [alt]="item.nome"
+            onerror="this.src = 'assets/sem-foto.png'"
+          />
+          <span class="badge-categoria">{{ item.categoria }}</span>
+        </div>
+
+        <div class="info-produto">
+          <div class="topo-info">
+            <h3>{{ item.nome }}</h3>
+            <span class="preco">{{ item.preco | currency: 'BRL' }}</span>
+          </div>
+          <p class="descricao">{{ item.descricao }}</p>
+        </div>
+
+        <div class="acoes-produto">
+          <label class="switch-ativo" title="Disponível?">
+            <input type="checkbox" [checked]="item.ativo" (change)="toggleAtivo(item)" />
+            <span class="slider round"></span>
+          </label>
+
+          @if (isAdmin()) {
+            <button class="btn-icon editar" (click)="editar(item)">✏️</button>
+            <button class="btn-icon excluir" (click)="abrirConfirmacaoDeletar(item)">🗑️</button>
+          }
+        </div>
+      </div>
+    } @empty {
+      <div class="empty-state-premium">
+        <div class="icon-ghost">🍱</div>
+        <h4>Cardápio Vazio</h4>
+        <p>Cadastre seu primeiro prato.</p>
+      </div>
+    }
+  </div>
+
+  @if (mostrarFormulario()) {
+    <app-modal-base 
+      [titulo]="produtoAtual.id ? '✏️ Editar Prato' : '📝 Novo Prato'" 
+      (fechar)="fecharModal()">
+      
+      <ng-container modal-body>
+        <div class="grupo-input">
+          <label>Nome do Prato <span *ngIf="!produtoAtual.nome" class="txt-erro">*</span></label>
+          <input [(ngModel)]="produtoAtual.nome" placeholder="Ex: Combo Hot Philadelfia" class="input-premium" />
+        </div>
+
+        <div class="row-dupla">
+          <div class="grupo-input">
+            <label>Preço (R$) <span *ngIf="!produtoAtual.preco" class="txt-erro">*</span></label>
+            <input type="number" [(ngModel)]="produtoAtual.preco" class="input-premium destaque-valor" placeholder="0,00" />
+          </div>
+
+          <div class="grupo-input">
+            <label>Categoria <span *ngIf="!produtoAtual.categoria" class="txt-erro">*</span></label>
+            <select [(ngModel)]="produtoAtual.categoria" class="input-premium select-premium">
+              <option [ngValue]="null" disabled selected>Selecione...</option>
+              <option value="Hot Crocante">🔥 Hot Crocante</option>
+              <option value="Temakis">🌯 Temakis</option>
+              <option value="Yakisoba">🍜 Yakisoba</option>
+              <option value="Harumaki">🥟 Harumaki</option>
+              <option value="Joe Joe">🍣 Joe Joe</option>
+              <option value="Combos">🍱 Combos</option>
+              <option value="Bebidas">🥤 Bebidas (Refri/Água)</option>
+              <option value="Cervejas">🍺 Cervejas</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grupo-input">
+          <label>Descrição / Ingredientes</label>
+          <textarea [(ngModel)]="produtoAtual.descricao" rows="3" class="input-premium area-texto" placeholder="Ex: 10 unidades de hot philadelfia..."></textarea>
+        </div>
+
+        <div class="grupo-input">
+          <label>Link da Imagem (URL)</label>
+          <input [(ngModel)]="produtoAtual.imagemUrl" placeholder="https://..." class="input-premium" />
+        </div>
+      </ng-container>
+
+      <ng-container modal-footer>
+        <button class="btn-cancelar" (click)="fecharModal()">CANCELAR</button>
+        <button class="btn-salvar" (click)="salvar()" [disabled]="!produtoAtual.nome || !produtoAtual.preco || !produtoAtual.categoria">
+          {{ produtoAtual.id ? 'SALVAR' : 'CADASTRAR' }}
+        </button>
+      </ng-container>
+
+    </app-modal-base>
+  }
+
+  @if (mostrarConfirmacaoDeletar()) {
+    <app-modal-confirmacao
+      titulo="Excluir Prato"
+      icone="⚠️"
+      tipo="perigo"
+      textoConfirmar="SIM, EXCLUIR"
+      textoCancelar="VOLTAR"
+      (confirmar)="confirmarExclusao()"
+      (cancelar)="fecharConfirmacaoDeletar()">
+      
+      <p style="color: #ccc; font-size: 1rem; margin-bottom: 10px;">Deseja realmente excluir:</p>
+      <strong style="font-size: 1.2rem; color: white; display: block; margin-bottom: 15px;">
+        {{ produtoParaDeletar?.nome }}
+      </strong>
+      <p style="color: #ff4444; font-size: 0.8rem; font-weight: bold;">ESTA AÇÃO NÃO PODE SER DESFEITA.</p>
+      
+    </app-modal-confirmacao>
+  }
+
+  @if (mostrarSucesso()) {
+    <app-modal-confirmacao
+      [titulo]="'Sucesso!'"
+      icone="✅"
+      tipo="sucesso"
+      textoConfirmar="OK"
+      [esconderCancelar]="true"
+      (confirmar)="fecharModalSucesso()">
+      
+      <p style="color: #ddd;">{{ mensagemSucesso() }}</p>
+      
+    </app-modal-confirmacao>
+  }
+</div>

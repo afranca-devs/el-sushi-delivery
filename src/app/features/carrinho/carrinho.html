@@ -1,0 +1,171 @@
+<div class="carrinho-container">
+  <header>
+    <button class="btn-voltar" (click)="voltar()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+    </button>
+    <h2>Minha Sacola</h2>
+  </header>
+
+  @if (!lojaAberta()) {
+    <div class="aviso-fechado">
+      <h3>🔴 LOJA FECHADA</h3>
+      <p>Não estamos recebendo pedidos agora. Voltamos em breve!</p>
+    </div>
+  }
+
+  <div class="lista-itens">
+    @if (carrinhoService.itens().length === 0) {
+      <div class="carrinho-vazio">
+        <div class="icon-wrapper">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+        </div>
+        <h3>Sua sacola está vazia</h3>
+        <p>Bateu a fome? Adicione uns sushis deliciosos e receba em casa! 🍣</p>
+        <button class="btn-cardapio" (click)="voltar()">IR PARA O CARDÁPIO</button>
+      </div>
+    } @else {
+      @for (item of carrinhoService.itens(); track item.produto.id) {
+        <div class="item-card">
+          <div class="img-thumb" [style.backgroundImage]="'url(' + (item.produto.imagemUrl || 'assets/placeholder.png') + ')'"></div>
+          <div class="info">
+            <h4>{{ item.produto.nome }}</h4>
+            <span class="subtotal">{{ item.produto.preco | currency: 'BRL' }}</span>
+          </div>
+          <div class="controles">
+            <span class="badge-qtd">{{ item.quantidade }}x</span>
+            <button class="btn-lixeira" (click)="remover(item.produto.id!)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /></svg>
+            </button>
+          </div>
+        </div>
+      }
+    }
+  </div>
+
+  @if (carrinhoService.itens().length > 0) {
+    <div class="area-checkout">
+      <h3>Finalizar Pedido</h3>
+
+      <div class="selector-tipo">
+        <button [class.ativo]="tipoEntrega() === 'delivery'" (click)="tipoEntrega.set('delivery')">🛵 Delivery</button>
+        <button [class.ativo]="tipoEntrega() === 'retirada'" (click)="tipoEntrega.set('retirada')">🛍️ Retirada (Balcão)</button>
+      </div>
+
+      <div class="grupo-input">
+        <input type="text" [(ngModel)]="cliente.nome" (input)="limparErro('nome')" placeholder="Seu Nome Completo *" class="input-premium" [class.input-erro]="erroValidacao.nome" />
+      </div>
+
+      <div class="grupo-input">
+        <div class="input-wrapper-loading">
+          <input type="tel" [ngModel]="cliente.telefone" (input)="formatarTelefone($event)" (blur)="buscarClientePorTelefone()" placeholder="(21) 99999-9999 *" class="input-premium" maxlength="15" [class.input-erro]="erroValidacao.telefone" />
+          @if (buscandoCliente()) { <div class="spinner-mini"></div> }
+        </div>
+      </div>
+
+      @if (tipoEntrega() === 'delivery') {
+        <div class="grid-endereco">
+          <div class="grupo-input input-rua">
+            <input type="text" [(ngModel)]="cliente.rua" (input)="limparErro('rua')" placeholder="Nome da Rua *" class="input-premium" [class.input-erro]="erroValidacao.rua" />
+          </div>
+          <div class="grupo-input input-num">
+            <input type="number" [(ngModel)]="cliente.numero" (input)="limparErro('numero')" placeholder="Nº *" class="input-premium" [class.input-erro]="erroValidacao.numero" />
+          </div>
+        </div>
+        <div class="grupo-input"><input type="text" [(ngModel)]="cliente.complemento" placeholder="Complemento (Opcional)" class="input-premium" /></div>
+        <div class="grupo-input">
+          <label>Bairro (Taxa de Entrega) *:</label>
+          <select [ngModel]="bairroSelecionado()?.nome" (change)="selecionarBairro($event)" class="input-premium" [class.input-erro]="erroValidacao.bairro">
+            <option [value]="null">Selecione seu bairro...</option>
+            @for (b of bairros(); track b.id) { <option [value]="b.nome">{{ b.nome }} (+{{ b.taxa | currency: 'BRL' }})</option> }
+          </select>
+        </div>
+      }
+
+      <div class="grupo-input">
+        <label>Observação:</label>
+        <textarea [(ngModel)]="cliente.observacao" rows="2" class="input-premium" placeholder="Ex: Sem wasabi, capricha no shoyu..."></textarea>
+      </div>
+
+      <h3>Pagamento</h3>
+      <div class="grupo-input">
+        <select [(ngModel)]="cliente.pagamento" class="input-premium">
+          <option value="pix">PIX (QR Code)</option>
+          <option value="cartao">Cartão (Maquininha)</option>
+          <option value="dinheiro">Dinheiro</option>
+        </select>
+      </div>
+
+      @if (cliente.pagamento === 'pix') {
+        <div class="area-pagamento-pix">
+          <div class="titulo-pix"><span>💠 Pagamento Instantâneo</span></div>
+          
+          <div class="qr-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: #ffffff; padding: 20px; border-radius: 12px; margin: 12px 0;">
+            <div style="font-size: 3rem; margin-bottom: 8px;">📱</div>
+            <span style="color: #18181b; font-weight: bold; font-size: 0.9rem;">QR Code PIX (Modo Demonstração)</span>
+          </div>
+
+          <p class="instrucao-pix">Copie a chave demonstrativa abaixo:</p>
+
+          <div class="box-copia-cola" (click)="copiarChavePix()">
+            <div class="info-chave">
+              <span class="label">Chave CNPJ:</span>
+              <span class="chave">{{ chavePix }}</span>
+            </div>
+            <button class="btn-copy">
+              <span *ngIf="!chaveCopiada">COPIAR ❐</span>
+              <span *ngIf="chaveCopiada" class="sucesso">COPIADO! ✅</span>
+            </button>
+          </div>
+        </div>
+      }
+
+      @if (cliente.pagamento === 'dinheiro') {
+        <div class="grupo-input">
+          <input type="number" [(ngModel)]="cliente.troco" placeholder="Troco para quanto? (Ex: 50)" class="input-premium" />
+        </div>
+      }
+
+      <div class="resumo-valores">
+        <div class="linha"><span>Subtotal</span><span>{{ totalDoCarrinho | currency: 'BRL' }}</span></div>
+        @if (tipoEntrega() === 'delivery') {
+          <div class="linha"><span>Taxa de Entrega</span><span>{{ bairroSelecionado()?.taxa || 0 | currency: 'BRL' }}</span></div>
+        } @else {
+          <div class="linha"><span>Taxa de Entrega</span><span style="color: #00c851; font-weight: bold;">Grátis</span></div>
+        }
+        <div class="linha destaque"><span>TOTAL</span><span>{{ totalComEntrega | currency: 'BRL' }}</span></div>
+      </div>
+
+      <button class="btn-finalizar" (click)="finalizarPedido()" [disabled]="carregando() || !lojaAberta()">
+        @if (carregando()) { <span>Enviando... ⏳</span> } 
+        @else if (!lojaAberta()) { 🔴 LOJA FECHADA } 
+        @else { 
+          {{ cliente.pagamento === 'pix' ? 'ENVIAR COMPROVANTE 📲' : 'FINALIZAR PEDIDO 🚀' }}
+        }
+      </button>
+    </div>
+  }
+
+  @if (mostrarSelecaoEndereco()) {
+    <div class="modal-overlay">
+      <div class="modal-content modal-endereco">
+        <h3>📍 Onde você está?</h3>
+        <div class="lista-enderecos">
+          @for (end of enderecosEncontrados(); track end.rua) {
+            <div class="card-endereco" (click)="usarEndereco(end)">
+              <div class="icone-casa">🏠</div>
+              <div class="dados"><strong>{{ end.rua }}, {{ end.numero }}</strong><span>{{ end.bairro }}</span></div>
+              <div class="seta">></div>
+            </div>
+          }
+        </div>
+        <button class="btn-novo-endereco" (click)="fecharModalEndereco()">Usar outro endereço / Novo</button>
+      </div>
+    </div>
+  }
+
+  @if (mostrarToast()) {
+    <div class="toast-container" [class.sucesso]="toastTipo() === 'sucesso'" [class.erro]="toastTipo() === 'erro'">
+      <span>{{ toastTipo() === 'sucesso' ? '✅' : '⚠️' }}</span><span>{{ toastMensagem() }}</span>
+    </div>
+  }
+</div>

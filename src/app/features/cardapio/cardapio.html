@@ -1,0 +1,128 @@
+<div class="container-cardapio">
+  
+  @if (!lojaAberta() && mostrarAvisoFechado()) {
+    <div class="loja-fechada-overlay">
+      <div class="card-aviso">
+        <div class="icon-lock">🔒</div>
+        <h2>Loja Fechada</h2>
+        <p>Nosso horário de atendimento inicia às <strong>18:00h</strong>.</p>
+        <p class="sub">Você pode navegar e escolher seus produtos, mas os pedidos só serão aceitos no horário de funcionamento.</p>
+        <button class="btn-entendi" (click)="fecharAvisoTemporario()">Dar uma olhadinha</button>
+      </div>
+    </div>
+  }
+
+  <header class="hero">
+    <div class="logo-wrapper">
+      <img src="assets/logo.jpg" alt="Logo El Sushi" onerror="this.src='https://placehold.co/150x150/111/d4af37?text=Sushi'">
+      
+      @if (!lojaAberta()) {
+        <div class="status-pill fechado">
+          <span class="dot"></span> FECHADO AGORA
+        </div>
+      } @else {
+        <div class="status-pill aberto">
+          <span class="dot"></span> ABERTO AGORA
+        </div>
+      }
+    </div>
+    
+    <h1>Cardápio Digital</h1>
+    <p>O melhor da culinária japonesa e chinesa.</p>
+  </header>
+
+  <div class="filtros-container">
+    <div class="filtros-scroll">
+      @for (cat of categorias(); track cat) {
+        <button 
+          [class.ativo]="categoriaSelecionada() === cat" 
+          (click)="filtrar(cat)">
+          {{ pegarEmoji(cat) }} {{ cat }}
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (carregando()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Preparando o salmão...</p>
+    </div>
+  } 
+  
+  @else {
+    <div class="cardapio-grid">
+      @for (produto of produtosFiltrados(); track produto.id) {
+        <div class="produto-card" (click)="verDetalhes(produto)">
+          <div class="img-wrapper">
+            <span class="badge">{{ produto.categoria }}</span>
+            <img [src]="produto.imagemUrl || 'assets/placeholder.png'" alt="{{ produto.nome }}" loading="lazy">
+          </div>
+          
+          <div class="content">
+            <h3>{{ produto.nome }}</h3>
+            <p class="desc">{{ produto.descricao }}</p>
+            
+            <div class="footer-card">
+              <span class="preco">{{ produto.preco | currency:'BRL' }}</span>
+              
+              <button 
+                class="btn-add" 
+                [class.btn-disabled]="!lojaAberta()" 
+                (click)="adicionarAoCarrinho(produto, $event)">
+                {{ lojaAberta() ? 'Adicionar 🛒' : 'Fechado 🔒' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      } @empty {
+        <div class="vazio-categoria">
+          <p>Nenhum item encontrado nesta categoria.</p>
+        </div>
+      }
+    </div>
+  }
+
+  @if (carrinhoService.quantidadeTotal() > 0) {
+    <div class="cart-floating" (click)="irParaCarrinho()">
+      <div class="info">
+        <span class="qtd-itens">{{ carrinhoService.quantidadeTotal() }} itens na sacola</span>
+        <span class="total-valor">{{ carrinhoService.valorTotal() | currency:'BRL' }}</span>
+      </div>
+      <div class="btn-ver">
+        Ver Sacola 🛍️
+      </div>
+    </div>
+  }
+
+  @if (modalProdutoAberto && produtoSelecionado) {
+    <div class="modal-overlay-produto" (click)="fecharModal()">
+      <div class="modal-produto-card" (click)="$event.stopPropagation()">
+        
+        <button class="btn-fechar-modal" (click)="fecharModal()">✕</button>
+        
+        <div class="modal-img-area">
+          <img [src]="produtoSelecionado.imagemUrl || 'assets/placeholder.png'" alt="Foto Grande">
+        </div>
+
+        <div class="modal-content-body">
+          <h2>{{ produtoSelecionado.nome }}</h2>
+          <p class="desc-completa">{{ produtoSelecionado.descricao }}</p>
+          
+          <div class="modal-action-row">
+            <span class="preco-modal">{{ produtoSelecionado.preco | currency:'BRL' }}</span>
+            
+            <button 
+              class="btn-add-modal" 
+              [class.btn-disabled]="!lojaAberta()"
+              (click)="adicionarAoCarrinho(produtoSelecionado)">
+              {{ lojaAberta() ? 'ADICIONAR À SACOLA 🛍️' : 'FECHADO 🔒' }}
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  }
+
+</div>

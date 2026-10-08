@@ -1,0 +1,399 @@
+$gold: #d4af37;
+$bg-dark: #0a0a0a;
+$bg-card: #161616;
+$border: #2a2a2a;
+$green: #00c851;
+$red: #ff4444;
+$blue: #007bff;
+
+:host {
+  display: block;
+  height: 100vh;
+  background-color: $bg-dark;
+  overflow: hidden;
+  * {
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+.dashboard-container {
+  padding: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+// --- HEADER ---
+.header-painel {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25px 30px;
+  border-bottom: 1px solid $border;
+  background: $bg-dark;
+
+  .titulo-area {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    h1 {
+      font-size: 1.8rem;
+      margin: 0;
+      line-height: 1;
+      color: white;
+      span { color: $gold; }
+    }
+    .seletor-abas {
+      display: flex;
+      gap: 15px;
+    }
+  }
+}
+
+.seletor-abas button {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #666;
+  padding: 8px 5px;
+  border-radius: 0;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.85rem;
+  transition: 0.2s;
+  &:hover { color: #aaa; }
+  &.ativa { border-color: $gold; color: $gold; }
+}
+
+// --- FILTROS ---
+
+// 🔥 MUDANÇA: Agora é coluna e alinha tudo à direita!
+.filtros-container {
+  display: flex;
+  flex-direction: column; 
+  align-items: flex-end; 
+  justify-content: center;
+  gap: 12px; // Espaço entre os botões e o calendário
+  padding-bottom: 0;
+}
+
+.filtros-periodo {
+  display: flex;
+  background: #111;
+  border: 1px solid #333;
+  padding: 4px;
+  border-radius: 12px;
+  button {
+    background: transparent;
+    color: #888;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    margin: 0;
+    &:hover {
+      color: white;
+      background: rgba(255, 255, 255, 0.05);
+    }
+    &.ativo {
+      background: #222;
+      color: $gold;
+      font-weight: 800;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      border: 1px solid #333;
+    }
+  }
+}
+
+// 🔥 NOVO VISUAL PREMIUM PARA AS DATAS (PC) 🔥
+.seletor-datas-premium {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #111;
+  padding: 8px 15px;
+  border-radius: 12px;
+  border: 1px solid #333;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  animation: fadeInDown 0.3s ease-out;
+
+  .data-grupo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .label-data {
+      color: #888;
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input {
+      background: #1a1a1a; // Caixinha sutilmente diferente do fundo
+      border: 1px solid #333;
+      border-radius: 8px;
+      color: #eee;
+      padding: 6px 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      outline: none;
+      color-scheme: dark;
+      cursor: pointer;
+      transition: all 0.2s;
+      
+      &:hover, &:focus { 
+        border-color: $gold; 
+        background: #222;
+      }
+      
+      &::-webkit-calendar-picker-indicator { 
+        cursor: pointer; 
+        opacity: 0.7; 
+        filter: invert(1);
+        transition: 0.2s;
+        &:hover { opacity: 1; filter: invert(0.8) sepia(1) hue-rotate(30deg) saturate(300%); }
+      }
+    }
+  }
+
+  .separador-datas {
+    span {
+      color: #555;
+      font-size: 1rem;
+      font-weight: bold;
+    }
+  }
+}
+
+// --- CONTENT ---
+.content-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  &::-webkit-scrollbar { width: 8px; }
+  &::-webkit-scrollbar-track { background: $bg-dark; }
+  &::-webkit-scrollbar-thumb { background: #222; border-radius: 4px; border: 2px solid $bg-dark; }
+  &:hover::-webkit-scrollbar-thumb { background: #444; }
+}
+
+// --- GRID SUPERIOR ---
+.grid-superior {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding-bottom: 25px;
+}
+.card-metrica {
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: 16px;
+  padding: 25px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  &::after {
+    content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+  }
+  &.gold { &::after { background: $gold; } }
+  &.red { &::after { background: $red; } strong { color: $red; } }
+  &.green { &::after { background: $green; } .lucro-destaque { color: $green; } }
+  .label { color: #666; font-size: 0.75rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; }
+  strong { display: block; font-size: 2rem; color: white; margin: 8px 0; font-weight: 800; }
+  .detalhe { color: #444; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+}
+
+.container-detalhes {
+  grid-column: span 3;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+}
+.card-analise,
+.ranking-topo {
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: 16px;
+  padding: 25px;
+}
+h3 {
+  color: white; margin: 0 0 20px 0; font-size: 0.95rem; text-transform: uppercase;
+  letter-spacing: 1px; border-left: 3px solid $gold; padding-left: 10px;
+}
+
+.item-barra {
+  margin-bottom: 15px;
+  .info-barra { display: flex; justify-content: space-between; margin-bottom: 8px; span { color: #888; font-size: 0.8rem; font-weight: 600; } strong { color: #eee; font-size: 0.85rem; } }
+  .barra-fundo { height: 6px; background: #000; border-radius: 10px; overflow: hidden; .progresso { height: 100%; transition: 1s ease; &.pix { background: $green; } &.dinheiro { background: #ffbb33; } &.cartao { background: $blue; } } }
+}
+
+.ranking-lista .item-ranking-mini {
+  display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #222;
+  &:last-child { border-bottom: none; }
+  .nome { color: #ddd; font-size: 0.9rem; }
+  .qtd { color: $gold; font-weight: 800; font-size: 0.75rem; background: rgba(212, 175, 55, 0.1); padding: 3px 8px; border-radius: 6px; }
+}
+.ranking-empty { color: #666; font-size: 0.85rem; text-align: center; padding: 20px 0; font-style: italic; }
+
+// --- TABELA HISTÓRICO & RECUSADOS ---
+.secao-historico { flex: 1; display: flex; flex-direction: column; min-height: 0; height: 100%; }
+
+.resumo-perdas {
+  padding: 15px; margin-bottom: 15px; border-radius: 10px; background: rgba(255, 68, 68, 0.1); border: 1px solid rgba(255, 68, 68, 0.2);
+  display: flex; justify-content: space-between; align-items: center;
+  .titulo-perda { color: $red; font-weight: bold; font-size: 0.9rem; text-transform: uppercase; }
+  .valor-perda { color: $red; font-weight: 900; font-size: 1.2rem; }
+}
+
+.tabela-premium {
+  flex: 1; background: #111; border: 1px solid $border; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column;
+
+  .tabela-header {
+    display: grid; grid-template-columns: 1.2fr 2fr 1.5fr 1fr; padding: 15px 25px; background: #1a1a1a; color: $gold; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;
+    &.grid-recusados { grid-template-columns: 1.2fr 1.5fr 2.5fr 1fr; }
+  }
+
+  .tabela-body {
+    flex: 1; overflow-y: auto; padding: 10px;
+    &::-webkit-scrollbar { width: 6px; }
+    &::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+  }
+
+  .tabela-linha {
+    display: grid; grid-template-columns: 1.2fr 2fr 1.5fr 1fr; padding: 14px 25px; background: #161616; border: 1px solid #252525; border-radius: 10px; align-items: center; color: #ddd; margin-bottom: 8px; transition: 0.2s;
+    &:hover { background: rgba(255, 255, 255, 0.03); border-color: #444; }
+
+    &.grid-recusados { grid-template-columns: 1.2fr 1.5fr 2.5fr 1fr; }
+
+    .col-data { color: #666; font-size: 0.8rem; font-weight: bold; }
+    .col-cliente { font-weight: 500; color: white; font-size: 0.9rem; }
+    .col-valor { color: $gold; font-weight: 800; text-align: right; font-size: 0.95rem; }
+
+    .col-motivo { color: #ff8888; font-size: 0.85rem; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .valor-riscado { color: #555; text-decoration: line-through; font-size: 0.85rem; }
+  }
+}
+
+.badge-pag {
+  font-size: 0.7rem; padding: 4px 10px; border-radius: 6px; background: #222; color: #888; font-weight: 800; text-transform: uppercase;
+  &.pix { color: $green; border: 1px solid rgba($green, 0.3); background: rgba($green, 0.05); }
+  &.dinheiro { color: #ffbb33; border: 1px solid rgba(#ffbb33, 0.3); background: rgba(#ffbb33, 0.05); }
+  &.cartao { color: $blue; border: 1px solid rgba($blue, 0.3); background: rgba($blue, 0.05); }
+}
+
+.tabela-footer {
+  padding: 15px 25px; background: #1a1a1a; border-top: 1px solid #222; display: flex; justify-content: space-between; align-items: center;
+  .btn-nav { background: transparent; border: 1px solid #333; color: $gold; padding: 8px 16px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; cursor: pointer; transition: 0.2s; &:hover:not(:disabled) { background: rgba(212, 175, 55, 0.1); border-color: $gold; } &:disabled { opacity: 0.3; cursor: not-allowed; color: #555; } }
+  .info-pag { color: #666; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
+}
+
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+.empty-state-vendas {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px; color: #333;
+  .icon-ghost { font-size: 4rem; margin-bottom: 10px; opacity: 0.5; filter: grayscale(100%); }
+  p { font-weight: bold; color: #444; margin: 0; }
+}
+
+@keyframes fadeInDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+// 🔥📱 RESPONSIVIDADE MOBILE 🔥
+@media (max-width: 768px) {
+  .header-painel {
+    padding: 20px; gap: 20px; align-items: stretch; flex-direction: column;
+    .titulo-area {
+      text-align: center; align-items: center; gap: 15px;
+      .seletor-abas {
+        justify-content: center; width: 100%; gap: 10px; margin-top: 5px;
+        button { border-bottom: none; border-radius: 10px; padding: 12px; background: #161616; border: 1px solid #333; font-size: 0.75rem; flex-grow: 1; text-align: center; height: auto; &.ativa { background: linear-gradient(135deg, $gold 0%, #f9d877 100%); color: black; border: none; font-weight: 800; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3); } }
+      }
+    }
+  }
+  .content-body { padding: 15px; }
+
+  // Restaura o container de filtros no mobile
+  .filtros-container {
+    flex-direction: column;
+    align-items: stretch; // Estica tudo pro mobile
+    gap: 10px;
+    width: 100%;
+    padding-bottom: 0;
+    height: auto;
+  }
+  
+  .filtros-periodo {
+    background: transparent; border: none; padding: 0; flex-wrap: wrap; justify-content: center; gap: 8px;
+    button { flex-grow: 1; background: #161616; border: 1px solid #333; color: #888; margin: 0; &.ativo { background: $gold; color: black; border-color: $gold; box-shadow: none; } }
+  }
+
+  // Estilo Mobile do Filtro de Datas
+  .seletor-datas-premium {
+    flex-direction: column; 
+    align-items: stretch;
+    width: 100%;
+    gap: 10px; 
+    background: transparent; 
+    border: none;
+    padding: 0;
+    box-shadow: none;
+
+    .data-grupo {
+      background: #111; // Joga o fundo e a borda para o input individual
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 12px 15px; 
+      justify-content: space-between; 
+      width: 100%;
+
+      .label-data {
+        font-size: 0.8rem;
+      }
+      input {
+        background: transparent;
+        border: none;
+        padding: 0;
+        font-size: 1rem;
+        text-align: right;
+        &:hover, &:focus { border-color: transparent; background: transparent; box-shadow: none; } 
+      } 
+    }
+
+    .separador-datas {
+      display: none; 
+    }
+  }
+
+  .grid-superior { display: flex; flex-direction: column; gap: 15px; padding-bottom: 30px; }
+  .card-metrica { padding: 25px; strong { font-size: 2.2rem; } }
+  .container-detalhes { display: flex; flex-direction: column; gap: 15px; }
+
+  // Tabela Cards Mobile
+  .tabela-premium {
+    background: transparent; border: none;
+    .tabela-header { display: none; }
+    .tabela-body { padding: 0; }
+    .tabela-linha {
+      display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 15px; margin-bottom: 15px; background: #161616; border: 1px solid #2a2a2a; border-radius: 12px; position: relative;
+      &:hover { background: #161616; border-color: #2a2a2a; }
+      .col-data { font-size: 0.75rem; color: #666; order: 1; }
+      .col-cliente { font-size: 1.1rem; font-weight: bold; color: white; order: 2; width: 100%; }
+      .col-pagamento { order: 3; align-self: flex-start; margin-top: 5px; }
+      .col-valor { order: 4; font-size: 1.4rem; color: $gold; width: 100%; text-align: right; border-top: 1px solid #222; padding-top: 10px; margin-top: 5px; }
+      .col-motivo { order: 3; color: #ff8888; font-style: normal; margin-top: 5px; width: 100%; white-space: normal; background: rgba(255, 68, 68, 0.1); padding: 8px; border-radius: 6px; border: 1px dashed rgba(255, 68, 68, 0.3); }
+      .valor-riscado { text-decoration: line-through; color: #555 !important; font-size: 1.1rem; font-weight: normal; }
+    }
+  }
+  .tabela-footer { flex-direction: column; gap: 15px; .btn-nav { width: 100%; } }
+}

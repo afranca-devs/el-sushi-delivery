@@ -1,0 +1,61 @@
+<div class="login-container">
+  <div class="bg-image"></div>
+  <div class="bg-overlay"></div>
+
+  <div class="login-card">
+    <div class="logo-area">
+      <div class="logo-circle">
+        <img src="assets/logo.jpg" alt="E&L Sushi">
+      </div>
+    </div>
+
+    <h2>Área Restrita 🔒</h2>
+    <p class="subtitulo">Acesso administrativo</p>
+
+    <div class="form-wrapper">
+      <button type="button" class="btn-demo-rapido" (click)="entrarComoDemonstracao()" [disabled]="carregando()" style="width: 100%; padding: 12px; margin-bottom: 16px; background-color: #e11d48; color: #fff; font-weight: bold; border: none; border-radius: 8px; cursor: pointer;">
+        ⚡ ENTRAR COMO ADMINISTRADOR (DEMO 1-CLIQUE)
+      </button>
+
+      <div class="grupo-input">
+        <label>E-mail</label>
+        <input 
+          type="email" 
+          [(ngModel)]="credenciaisAcesso.email" 
+          class="input-premium"
+        >
+      </div>
+
+      <div class="grupo-input">
+        <label>Senha</label>
+        <input 
+          type="password" 
+          [(ngModel)]="credenciaisAcesso.senha" 
+          class="input-premium"
+          (keyup.enter)="entrar()"
+        >
+      </div>
+
+      <button class="btn-entrar" (click)="entrar()" [disabled]="carregando()">
+        {{ carregando() ? 'ENTRANDO...' : 'ENTRAR NO SISTEMA' }}
+      </button>
+
+      <button class="btn-voltar" routerLink="/">
+        Voltar para o Cardápio
+      </button>
+    </div>
+  </div>
+  
+  <p class="footer-login">© 2026 E&L Sushi System</p>
+
+  @if (notificacaoAlerta().visivel) {
+    <div class="modal-overlay" (click)="fecharNotificacao()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <div class="icon-area erro">⚠️</div>
+        <h3>Atenção</h3>
+        <p>{{ notificacaoAlerta().mensagem }}</p>
+        <button class="btn-modal" (click)="fecharNotificacao()">ENTENDI</button>
+      </div>
+    </div>
+  }
+</div>
